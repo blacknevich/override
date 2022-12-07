@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void)
+{
+
+    int integer_variable;
+
+    puts("***********************************");
+
+    puts("* \t     -Level00 -\t\t  *");
+
+    puts("***********************************");
+
+    printf("Password:");
+
+    scanf("%d", &integer_variable);
+
+    if (integer_variable == 5276) {
+        puts("\nAuthenticated!");
+        system("/bin/sh");
+    } else {
+        puts("\nInvalid Password!");
+    }
+
+    return 0;
+}

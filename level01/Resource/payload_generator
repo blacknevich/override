@@ -1,0 +1,7 @@
+perl -e 'print for "a" .. "z", "A" .. "Z", 0 .. 9'
+
+perl -e '$,=" ";print ("\nor just 100 As\n\n\n")'
+perl -e '$,=" ";print ("A" x100)'
+perl -e '$,=" ";print ("\nor just 50 As plus text\n\n\n")'
+perl -e '$,=" ";print ("A" x50)'
+perl -e 'print for "a" .. "z", "A" .. "Z", 0 .. 9'
