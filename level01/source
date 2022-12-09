@@ -1,27 +1,43 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-int main(void)
-{
+char *a_user_name;
 
-    int integer_variable;
+int verify_user_name(void) {
+    puts("verifying username....\n");
+    return (strncmp(a_user_name, "dat_wil", 7));
+}
 
-    puts("***********************************");
+int verify_user_pass(char *pass) {
+    return (strncmp(pass, "admin", 5));
+}
 
-    puts("* \t     -Level00 -\t\t  *");
+int main(void) {
+    char buffer_legth_16[16]; /* esp+0x1c */
+    int int_value_for_administration; /* esp+0x5c */
 
-    puts("***********************************");
+    bzero(buffer_legth_16, 16);
+    int_value_for_administration = 0;
 
-    printf("Password:");
+    puts("********* ADMIN LOGIN PROMPT *********");
+    printf("Enter Username: ");
 
-    scanf("%d", &integer_variable);
-
-    if (integer_variable == 5276) {
-        puts("\nAuthenticated!");
-        system("/bin/sh");
-    } else {
-        puts("\nInvalid Password!");
+    fgets(a_user_name, 256, stdin);
+    int_value_for_administration = verify_user_name();
+    if (int_value_for_administration != 0) {
+        puts("nope, incorrect username...\n");
+        return 1;
     }
 
+    puts("Enter Password: ");
+    fgets(&buffer_legth_16[16], 100, stdin);
+    int_value_for_administration = verify_user_pass(buffer_legth_16);
+    if (int_value_for_administration == 0) {
+        puts("nope, incorrect password...\n");
+        return 1;
+    }
+    if (int_value_for_administration == 0) {
+        return 0;
+    }
     return 0;
 }
