@@ -1,0 +1,9 @@
+start VM wth override.iso and NAT
+start ssh connection with ssh -p 4242 level00@127.0.0.1
+start the level00 file wtth gdb
+disas main
+go through the all steps to replicate the file for source file checking what is registers with b *instruction -> go to it -> info registers -> x *address_in_esp
+focus attention on cmp function where the password is checked
+convert the number from the comparison from 16 system to 10 - it is 5276
+enter the right password
+go to the level01 folder and check flag in .pass
