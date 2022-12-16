@@ -1,0 +1,274 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+	/*
+void decrypt(int input_string) {
+
+int tmp[5] = {0x757c7d51, 0x67667360, 0x7b66737e, 0x33617c7d, 0};
+
+size_t len = strlen(buf);
+int i = 0;
+
+while(i < len) {
+(char)&tmp[i] = 0xff & ((char)&tmp[i] ^ input_string);
+i++;
+}
+
+if (strncmp((char *)(&tmp[0]), "Congratulations!", 17) == 0)
+    while (i < len) {
+        buf[i] = buf[i] ^ input;
+        i++;
+    }
+    if (strncmp(buf, "Congratulations!", 17) == 0) {
+        system("/bin/sh");
+    } else {
+        puts("\nInvalid Password");
+    }
+    return;
+}
+
+void test(int input_string, int constant) {
+	
+
+	int tmp = constant - input_string;;
+
+	if (tmp > 21)
+		decrypt(rand());
+	else {
+		//decrypt(tmp * 4 + 0x80489f0); //some switch case structure that always leads to decrypt(tmp)
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+	}
+end:
+	return;
+}
+
+int main(void) {
+
+
+    srand(time(0));
+    puts("***********************************");
+    puts("*\t\tlevel03\t\t**");
+    puts("***********************************");
+    printf("Password:");
+
+    int input_string;
+
+    scanf("%d", &input_string);
+    test(input_string, 0x1337d00d);
+    return 0;
+}
+	  and now the fool version!*/
+
+void decrypt(int input_string) {
+    /*
+	   0x08048660 <+0>:	push   %ebp
+   0x08048661 <+1>:	mov    %esp,%ebp
+   0x08048663 <+3>:	push   %edi
+   0x08048664 <+4>:	push   %esi
+   0x08048665 <+5>:	sub    $0x40,%esp = 64 stack
+   0x08048668 <+8>:	mov    %gs:0x14,%eax - canary operation
+   0x0804866e <+14>:	mov    %eax,-0xc(%ebp) - canary operation - var at 12
+   0x08048671 <+17>:	xor    %eax,%eax - canary operation
+   0x08048673 <+19>:	movl   $0x757c7d51,-0x1d(%ebp) - 29
+   0x0804867a <+26>:	movl   $0x67667360,-0x19(%ebp) - 25
+   0x08048681 <+33>:	movl   $0x7b66737e,-0x15(%ebp) - 21
+   0x08048688 <+40>:	movl   $0x33617c7d,-0x11(%ebp) -17
+   0x0804868f <+47>:	movb   $0x0,-0xd(%ebp) - 13 - zero at the end
+    */
+	int tmp[5] = {0x757c7d51, 0x67667360, 0x7b66737e, 0x33617c7d, 0};
+    /*
+    (char)&tmp equivalent to char buf[17] = "Q}|u`sfg~sf{}|a3";total = 29 - 13 = 16 + 1 (\0)  = 17 | ebp-0x1d 
+    */
+
+    /* canaries
+   0x08048693 <+51>:	push   %eax
+   0x08048694 <+52>:	xor    %eax,%eax
+   0x08048696 <+54>:	je     0x804869b <decrypt+59>
+   0x08048698 <+56>:	add    $0x4,%esp
+   0x0804869b <+59>:	pop    %eax
+    */
+    /*
+   0x0804869c <+60>:	lea    -0x1d(%ebp),%eax -v1
+   0x0804869f <+63>:	movl   $0xffffffff,-0x2c(%ebp) 44 = max
+   0x080486a6 <+70>:	mov    %eax,%edx -v1
+   0x080486a8 <+72>:	mov    $0x0,%eax -0
+   0x080486ad <+77>:	mov    -0x2c(%ebp),%ecx -44
+   0x080486b0 <+80>:	mov    %edx,%edi -v1
+   0x080486b2 <+82>:	repnz scas %es:(%edi),%al
+   0x080486b4 <+84>:	mov    %ecx,%eax
+   0x080486b6 <+86>:	not    %eax
+   0x080486b8 <+88>:	sub    $0x1,%eax
+   0x080486bb <+91>:	mov    %eax,-0x24(%ebp) -36 - strlen(v1);
+   0x080486be <+94>:	movl   $0x0,-0x28(%ebp) -40 - some_var = 0
+   0x080486c5 <+101>:	jmp    0x80486e5 <decrypt+133>
+    */
+	size_t len = strlen((char)&tmp[0]); /* ebp-0x24 */
+
+	int i = 0; /* ebp-0x28 */
+    /*
+   0x080486c7 <+103>:	lea    -0x1d(%ebp),%eax - address of 29
+   0x080486ca <+106>:	add    -0x28(%ebp),%eax - to 0 from some_var = buf[some_var]
+   0x080486cd <+109>:	movzbl (%eax),%eax - extend with 0 to full register
+   0x080486d0 <+112>:	mov    %eax,%edx - and move to edx
+   0x080486d2 <+114>:	mov    0x8(%ebp),%eax - input_string to eax
+   0x080486d5 <+117>:	xor    %edx,%eax - xor = ^ in c
+   0x080486d7 <+119>:	mov    %eax,%edx
+   0x080486d9 <+121>:	lea    -0x1d(%ebp),%eax -v1
+   0x080486dc <+124>:	add    -0x28(%ebp),%eax plus i
+   0x080486df <+127>:	mov    %dl,(%eax) - only upper 16 bytes!!!
+   0x080486e1 <+129>:	addl   $0x1,-0x28(%ebp) some_var + 1
+   0x080486e5 <+133>:	mov    -0x28(%ebp),%eax
+   0x080486e8 <+136>:	cmp    -0x24(%ebp),%eax cmp len and some_var and continue cycle if strlen is bigger
+   0x080486eb <+139>:	jb     0x80486c7 <decrypt+103>
+    */
+	while(i < len) {
+		(char)&tmp[i] = 0xff & ((char)&tmp[i] ^ input_string);
+		i++;
+	}
+    /* strncmp
+   0x080486ed <+141>:	lea    -0x1d(%ebp),%eax - v1
+   0x080486f0 <+144>:	mov    %eax,%edx
+   0x080486f2 <+146>:	mov    $0x80489c3,%eax - congrats
+   0x080486f7 <+151>:	mov    $0x11,%ecx - 17
+   0x080486fc <+156>:	mov    %edx,%esi
+   0x080486fe <+158>:	mov    %eax,%edi
+   0x08048700 <+160>:	repz cmpsb %es:(%edi),%ds:(%esi)
+   0x08048702 <+162>:	seta   %dl
+   0x08048705 <+165>:	setb   %al
+   0x08048708 <+168>:	mov    %edx,%ecx
+   0x0804870a <+170>:	sub    %al,%cl
+   0x0804870c <+172>:	mov    %ecx,%eax
+   0x0804870e <+174>:	movsbl %al,%eax
+   0x08048711 <+177>:	test   %eax,%eax
+    */
+	if (strncmp((char *)(&tmp[0]), "Congratulations!", 17) == 0)
+    /*
+   0x08048713 <+179>:	jne    0x8048723 <decrypt+195>
+   0x08048715 <+181>:	movl   $0x80489d4,(%esp)
+   0x0804871c <+188>:	call   0x80484e0 <system@plt>
+    */
+	    system("/bin/sh");
+    /*
+   0x08048721 <+193>:	jmp    0x804872f <decrypt+207>
+   0x08048723 <+195>:	movl   $0x80489dc,(%esp)
+   0x0804872a <+202>:	call   0x80484d0 <puts@plt>
+    */
+   else
+	   puts("\nInvalid Password");
+    /* canaries check
+   0x0804872f <+207>:	mov    -0xc(%ebp),%esi
+   0x08048732 <+210>:	xor    %gs:0x14,%esi
+   0x08048739 <+217>:	je     0x8048740 <decrypt+224>
+   0x0804873b <+219>:	call   0x80484c0 <__stack_chk_fail@plt>
+    */
+    /* return
+   0x08048740 <+224>:	add    $0x40,%esp
+   0x08048743 <+227>:	pop    %esi
+   0x08048744 <+228>:	pop    %edi
+   0x08048745 <+229>:	pop    %ebp
+   0x08048746 <+230>:	ret
+    */
+   return;
+}
+
+void test(int input_string, int constant) {
+	
+
+	size_t tmp = constant - input_string;;
+
+	if (tmp > 21)
+		decrypt(rand());
+	else {
+		//decrypt(tmp * 4 + 0x80489f0); //some switch case structure that always leads to decrypt(tmp)
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+		decrypt(tmp);
+		goto end;
+	}
+end:
+	return;
+}
+
+int main(void) {
+
+	/* canary?
+	   0x0804885a <+0>:	push   %ebp
+	   0x0804885b <+1>:	mov    %esp,%ebp
+	   0x0804885d <+3>:	and    $0xfffffff0,%esp
+	   0x08048860 <+6>:	sub    $0x20,%esp
+	   0x08048863 <+9>:	push   %eax
+	   0x08048864 <+10>:	xor    %eax,%eax
+	   0x08048866 <+12>:	je     0x804886b <main+17>
+	   0x08048868 <+14>:	add    $0x4,%esp
+	   0x0804886b <+17>:	pop    %eax
+	 */
+
+    srand(time(0));
+    puts("***********************************");
+    puts("*\t\tlevel03\t\t**");
+    puts("***********************************");
+    printf("Password:");
+
+    int input_string; /* esp+0x1c */
+
+    scanf("%d", &input_string);
+    test(input_string, 0x1337d00d); /*322424845 */
+    return 0;
+}

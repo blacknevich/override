@@ -1,0 +1,26 @@
+start ssh connection with ssh -p 4242 level03@127.0.0.1 with flag from lvl2
+
+see the program with gdb (see source) - main conclusions:
+
+the value that we input is a substrahend from 322424845 in test function
+
+if the resulting value is more then 21 other steps will be randomized and we will not have an impact on the program
+
+if the result is less the 0 result will overflow which is almost the same so we work with 0-21 range. At this point we can already make a hack but we can be a little more cool
+
+the result of substraction is then passed to decrypt funtion which makes an operation of 0xff & ( X ^ (322424845 - input_string)) for each letter of the string "Q}|u`sfg~sf{}|a3" 
+
+it compares the resulting string with "Congratulations!" string and runs bin/sh in case of success
+
+we cat make a key finder program that replicates the original one (see at the Resources folder)
+
+the key value is 18 and the full input string is 322424827
+
+we have a password that matches!
+
+
+
+
+
+
+
