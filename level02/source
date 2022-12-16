@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -11,7 +12,7 @@ int main(int argc, char **argv)
    #0x0000000000400825 <+17>:	mov    %rsi,-0x120(%rbp) move argv to 288-288 lenght of argc is 4
    #0x000000000040082c <+24>:	lea    -0x70(%rbp),%rdx - create variable at 288-112 and put its pointer to rdx - its length is 112-12 = 100 (see 43)
    */
-   int username[100];
+   char username[100];
    /*
    #0x0000000000400830 <+28>:	mov    $0x0,%eax - 0 (the filler)
    #0x0000000000400835 <+33>:	mov    $0xc,%ecx - 12 (repetitions)
@@ -151,11 +152,11 @@ int main(int argc, char **argv)
    #0x0000000000400989 <+373>:	mov    $0x400c20,%edi"===== [ Secure Access System v1.0 ] ====="
    #0x000000000040098e <+378>:	callq  0x400680 <puts@plt>
    #0x0000000000400993 <+383>:	mov    $0x400c50,%edi
-   #0x0000000000400998 <+388>:	callq  0x400680 <puts@plt>"/***************************************\\"
+   #0x0000000000400998 <+388>:	callq  0x400680 <puts@plt>"***************************************\\"
    #0x000000000040099d <+393>:	mov    $0x400c80,%edi
    #0x00000000004009a2 <+398>:	callq  0x400680 <puts@plt>"| You must login to access this system. |"
    #0x00000000004009a7 <+403>:	mov    $0x400cb0,%edi
-   #0x00000000004009ac <+408>:	callq  0x400680 <puts@plt>"\\**************************************/"
+   #0x00000000004009ac <+408>:	callq  0x400680 <puts@plt>"\\**************************************"
    */
    puts("===== [ Secure Access System v1.0 ] =====");
     puts("/***************************************\\");
@@ -247,7 +248,7 @@ int main(int argc, char **argv)
    return 0;
     }
     /*
-   #0x0000000000400a96 <+642>:	lea    -0x70(%rbp),%rax username straightforward reference!! we can explot it!!
+   #0x0000000000400a96 <+642>:	lea    -0x70(%rbp),%rax username straightforward reference!! we can explot it!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! format string
    #0x0000000000400a9a <+646>:	mov    %rax,%rdi username
    #0x0000000000400a9d <+649>:	mov    $0x0,%eax nullify eax
    #0x0000000000400aa2 <+654>:	callq  0x4006c0 <printf@plt>

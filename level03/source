@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 
 	/*
@@ -8,11 +9,11 @@ void decrypt(int input_string) {
 
 int tmp[5] = {0x757c7d51, 0x67667360, 0x7b66737e, 0x33617c7d, 0};
 
-size_t len = strlen(buf);
+size_t len = strlen((char *)&tmp[i]);
 int i = 0;
 
 while(i < len) {
-(char)&tmp[i] = 0xff & ((char)&tmp[i] ^ input_string);
+*(char *)&tmp[i] = 0xff & (*(char *)&tmp[i] ^ input_string);
 i++;
 }
 
@@ -133,7 +134,7 @@ void decrypt(int input_string) {
    0x080486be <+94>:	movl   $0x0,-0x28(%ebp) -40 - some_var = 0
    0x080486c5 <+101>:	jmp    0x80486e5 <decrypt+133>
     */
-	size_t len = strlen((char)&tmp[0]); /* ebp-0x24 */
+	size_t len = strlen((char *)&tmp[0]); /* ebp-0x24 */
 
 	int i = 0; /* ebp-0x28 */
     /*
@@ -153,7 +154,7 @@ void decrypt(int input_string) {
    0x080486eb <+139>:	jb     0x80486c7 <decrypt+103>
     */
 	while(i < len) {
-		(char)&tmp[i] = 0xff & ((char)&tmp[i] ^ input_string);
+		*(char *)(&tmp[i]) = 0xff & (*(char *)&tmp[i] ^ input_string);
 		i++;
 	}
     /* strncmp

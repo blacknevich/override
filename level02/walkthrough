@@ -1,9 +1,19 @@
-start VM wth override.iso and NAT
-start ssh connection with ssh -p 4242 level00@127.0.0.1
-start the level00 file wtth gdb
-disas main
-go through the all steps to replicate the file for source file checking what is registers with b *instruction -> go to it -> info registers -> x *address_in_esp
-focus attention on cmp function where the password is checked
-convert the number from the comparison from 16 system to 10 - it is 5276
-enter the right password
-go to the level01 folder and check flag in .pass
+start ssh connection with ssh -p 4242 level02@127.0.0.1 with flag from lvl1
+
+see the function with gdb (see source) - helps to understand stack offset understanding but actually only 1 thing matters:
+focus attention on string 250 of source file - it is printf(username), we can exploit with a format string!
+
+format string exploit construction is: for(( i = 1; i < 100; i++)); do echo "%$i\$p" | ./level02 | grep does; done
+
+$x in printf means that we want input from x's variable of printf - so we will have first 100 pointers in hexademical
+
+answers somewhere around 20-30 look suspicious, turn them to ascii from hex and reverse with little endian: see decoder.sh file in Resourse foulder
+
+we have a flag that matches! (program doesn't care about username)
+
+
+
+
+
+
+
