@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/ptrace.h>
 
 int auth(char *login, unsigned int serial){
 
@@ -8,8 +12,9 @@ int auth(char *login, unsigned int serial){
 	if ((len = strnlen(login, 32)) <= 5)
 		return 1;
 
-	// will stop and handle the control to main initiation function if execve called
-	if (ptrace(PTRACE_TRACEME, 0, 1, 0) == -1) //- why second arg is 1??? they are ignored after traceme
+	//-1 check helps to understand that we are running in debugger and break our game
+	//if (ptrace(PTRACE_TRACEME, 0, 1, 0) == -1) //- why second arg is 1??? they are ignored after traceme
+	if (ptrace(0, 0, 1, 0) == -1) //- why second arg is 1??? they are ignored after traceme
 	{
 		puts("\033[32m.---------------------------.");
 		puts("\033[31m| !! TAMPERING DETECTED !!  |");
@@ -17,19 +22,19 @@ int auth(char *login, unsigned int serial){
 		return 1;
 	}
 
-	int	serial_decoded;
-	serial_decoded = ((0xff & login[3]) ^ 4919) + 6221293;
+	int	login_encoded;
+	login_encoded = ((0xff & login[3]) ^ 4919) + 6221293;
 
 	int counter = 0;
 	while (counter < len)
 	{
 		if (login[counter] <= 31)
 			return 1;
-		serial_decoded = serial_decoded + hash(login[counter]);
+		login_encoded = login_encoded + ((login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024 * 0x539 - login_encoded ^ login[counter]); // -hashing algorithm?
 		counter++;
 	}
 
-	if (serial != serial_decoded)
+	if (serial != login_encoded) //at this point we can watch the value!
 		return 1;
 
 	return 0;
@@ -46,14 +51,14 @@ int main(void)
 
 	char	login[32];
 
-	fgets(&login, 32, stdin);
+	fgets(login, 32, stdin);
 
 	puts("***********************************");
 	puts("***** NEW ACCOUNT DETECTED ********");
 	puts("***********************************");
 	printf("-> Enter Serial: ");
 
-	size_t	stream;
+	size_t	serial;
 
 	scanf("%u", serial);
 
@@ -69,23 +74,6 @@ int main(void)
 
 /*
 int auth(char *login, unsigned int serial){ - 0x8 is login 0x
-	int	serial_decoded;
-	serial_decoded = ((0xff & login[3]) ^ 4919) + 6221293;
-
-	int counter = 0;
-	while (counter < len)
-	{
-		if (login[counter] <= 31)
-			return 1;
-		serial_decoded = serial_decoded + hash(login[counter]);
-		counter++;
-	}
-
-	if (serial != serial_decoded)
-		return 1;
-
-	return 0;
-}
    0x08048748 <+0>:	push   %ebp
    0x08048749 <+1>:	mov    %esp,%ebp
    0x0804874b <+3>:	sub    $0x28,%esp
@@ -145,52 +133,80 @@ int auth(char *login, unsigned int serial){ - 0x8 is login 0x
 	}
 
    0x080487ed <+165>:	mov    0x8(%ebp),%eax
-   0x080487f0 <+168>:	add    $0x3,%eax
+   0x080487f0 <+168>:	add    $0x3,%eax -login[3]
    0x080487f3 <+171>:	movzbl (%eax),%eax
    0x080487f6 <+174>:	movsbl %al,%eax
-   0x080487f9 <+177>:	xor    $0x1337,%eax
-   0x080487fe <+182>:	add    $0x5eeded,%eax
-   0x08048803 <+187>:	mov    %eax,-0x10(%ebp)
-   0x08048806 <+190>:	movl   $0x0,-0x14(%ebp)
-   0x0804880d <+197>:	jmp    0x804885b <auth+275>
+   0x080487f9 <+177>:	xor    $0x1337,%eax ^4919
+   0x080487fe <+182>:	add    $0x5eeded,%eax + 6221293
+   0x08048803 <+187>:	mov    %eax,-0x10(%ebp) - var at ebp-16(int) - login_encoded
+
+	int	login_encoded;
+	login_encoded = ((0xff & login[3]) ^ 4919) + 6221293;
+
+   0x08048806 <+190>:	movl   $0x0,-0x14(%ebp) - var at ebp-20 counter
+
+   0x0804880d <+197>:	jmp    0x804885b <auth+275> - while start
+
    0x0804880f <+199>:	mov    -0x14(%ebp),%eax
-   0x08048812 <+202>:	add    0x8(%ebp),%eax
+   0x08048812 <+202>:	add    0x8(%ebp),%eax login[counter]
    0x08048815 <+205>:	movzbl (%eax),%eax
-   0x08048818 <+208>:	cmp    $0x1f,%al
-   0x0804881a <+210>:	jg     0x8048823 <auth+219>
+   0x08048818 <+208>:	cmp    $0x1f,%al 31
+   0x0804881a <+210>:	jg     0x8048823 <auth+219> >
+
    0x0804881c <+212>:	mov    $0x1,%eax
-   0x08048821 <+217>:	jmp    0x8048877 <auth+303>
+   0x08048821 <+217>:	jmp    0x8048877 <auth+303> - return 1
+
    0x08048823 <+219>:	mov    -0x14(%ebp),%eax
-   0x08048826 <+222>:	add    0x8(%ebp),%eax
+   0x08048826 <+222>:	add    0x8(%ebp),%eax - login[counter]
    0x08048829 <+225>:	movzbl (%eax),%eax
    0x0804882c <+228>:	movsbl %al,%eax
    0x0804882f <+231>:	mov    %eax,%ecx
-   0x08048831 <+233>:	xor    -0x10(%ebp),%ecx
-   0x08048834 <+236>:	mov    $0x88233b2b,%edx
+   0x08048831 <+233>:	xor    -0x10(%ebp),%ecx - login_encoded ^ login[counter]
+   0x08048834 <+236>:	mov    $0x88233b2b,%edx - 2284010283
    0x08048839 <+241>:	mov    %ecx,%eax
-   0x0804883b <+243>:	mul    %edx
-   0x0804883d <+245>:	mov    %ecx,%eax
-   0x0804883f <+247>:	sub    %edx,%eax
-   0x08048841 <+249>:	shr    %eax
-   0x08048843 <+251>:	add    %edx,%eax
-   0x08048845 <+253>:	shr    $0xa,%eax
-   0x08048848 <+256>:	imul   $0x539,%eax,%eax
+   0x0804883b <+243>:	mul    %edx - login_encoded ^ login[counter] * 0x88233b2b 
+   0x0804883d <+245>:	mov    %ecx,%eax - login_encoded ^ login[counter]
+   0x0804883f <+247>:	sub    %edx,%eax - login_encoded ^ login[counter] * 0x88233b2b
+   0x08048841 <+249>:	shr    %eax - login_encoded ^ login[counter] / 2
+   0x08048843 <+251>:	add    %edx,%eax - login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b
+   0x08048845 <+253>:	shr    $0xa,%eax - (login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024
+   0x08048848 <+256>:	imul   $0x539,%eax,%eax- (login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024 * 0x539
    0x0804884e <+262>:	mov    %ecx,%edx
-   0x08048850 <+264>:	sub    %eax,%edx
+   0x08048850 <+264>:	sub    %eax,%edx- (login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024 * 0x539 - login_encoded ^ login[counter]
    0x08048852 <+266>:	mov    %edx,%eax
-   0x08048854 <+268>:	add    %eax,-0x10(%ebp)
-   0x08048857 <+271>:	addl   $0x1,-0x14(%ebp)
-   0x0804885b <+275>:	mov    -0x14(%ebp),%eax
-   0x0804885e <+278>:	cmp    -0xc(%ebp),%eax
-   0x08048861 <+281>:	jl     0x804880f <auth+199>
-   0x08048863 <+283>:	mov    0xc(%ebp),%eax
-   0x08048866 <+286>:	cmp    -0x10(%ebp),%eax
+   0x08048854 <+268>:	add    %eax,-0x10(%ebp) login_encoded = login_encoded +(login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024 * 0x539 - login_encoded ^ login[counter]
+
+   0x08048857 <+271>:	addl   $0x1,-0x14(%ebp) counter++
+
+   0x0804885b <+275>:	mov    -0x14(%ebp),%eax -counter
+   0x0804885e <+278>:	cmp    -0xc(%ebp),%eax -len
+   0x08048861 <+281>:	jl     0x804880f <auth+199> - while end
+
+	int counter = 0;
+	while (counter < len)
+	{
+		if (login[counter] <= 31)
+			return 1;
+		login_encoded = login_encoded + (login_encoded ^ login[counter] / 2 + login_encoded ^ login[counter] * 0x88233b2b)/1024 * 0x539 - login_encoded ^ login[counter]) -hashing algorithm?
+		counter++;
+	}
+   0x08048863 <+283>:	mov    0xc(%ebp),%eax - serial
+   0x08048866 <+286>:	cmp    -0x10(%ebp),%eax login_encoded - !!!!!!!!!!!!!!!!!!!watch ebp-16
    0x08048869 <+289>:	je     0x8048872 <auth+298>
+
    0x0804886b <+291>:	mov    $0x1,%eax
-   0x08048870 <+296>:	jmp    0x8048877 <auth+303>
+   0x08048870 <+296>:	jmp    0x8048877 <auth+303> return 1
+
    0x08048872 <+298>:	mov    $0x0,%eax
    0x08048877 <+303>:	leave
    0x08048878 <+304>:	ret
+
+	if (serial != login_encoded)
+		return 1;
+
+	return 0;
+}
+
  int main(void) {
  canary creation
    0x08048879 <+0>:	push   %ebp
