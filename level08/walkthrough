@@ -1,0 +1,13 @@
+start ssh connection with ssh -p 4242 level08@127.0.0.1 use flag from level07
+
+the programm (see source) takes a file path in argument and tries to open a log file and a file that we gave as arg
+
+then it tries to open the same file as in arg but with ./backups/ prefix and puts the contents of the file opened in it - in all cases when it can not open a file it exits with an error
+
+we obviously want to open ~level09/.pass but we can not create directories in level09 and read from them but our programm uses relative passes so
+
+we can create mkdir -p ./backups/home/users/level09/ inside /tmp directory where we have rights and backup .pass file to it running our program from tmp!
+
+~/level08 ~level09/.pass
+
+go to the /tmp/backups/home/users/level09/.pass and check flag in .pass - success!
