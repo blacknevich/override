@@ -1,0 +1,292 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+struct s_msg
+{
+	char msg[140];
+	char username[40];
+	int len;
+} t_msg;
+
+void	secret_backdoor()
+{
+	char	input_80[128];
+
+	fgets(input_80, 128, stdin);
+	system(input_80);
+
+	return;
+}
+
+void	set_msg(struct s_msg *msg_408)
+{
+	char	input_400[1024];
+
+	bzero(input_400, 128);
+	puts("Message @Unix-Dude");
+	printf(">>: ");
+	fgets(input_400, 1024, stdin);
+	strncpy(msg_408->msg, input_400, msg_408->len);
+
+	return;
+}
+
+
+void	set_username(struct s_msg *msg_98)
+{
+	char	input_90[128];
+
+	bzero(input_90, 16);
+	puts(">: Enter your username");
+	printf( ">>: ");
+	fgets(input_90, 128, stdin);
+
+	for (int i = 0; i <= 40 && input_90[i]; i++)
+		msg_98->username[i] = input_90[i];
+	printf(">: Welcome, %s", msg_98->username);
+
+	return;
+}
+
+void	handle_msg(void)
+{
+	struct s_msg msg_c0;
+
+	bzero(msg_c0.username, 40);
+	msg_c0.len = 140;
+
+	set_username(&msg_c0);
+	set_msg(&msg_c0);
+	puts(">: Msg sent!");
+
+	return;
+}
+
+
+int	main(void)
+{
+	puts("--------------------------------------------\n|   ~Welcome to l33t-m$n ~    v1337        |\n--------------------------------------------");
+	handle_msg();
+
+	return 0;
+}
+
+/*
+void	secret_backdoor()
+{
+   0x000055555555488c <+0>:	push   %rbp
+   0x000055555555488d <+1>:	mov    %rsp,%rbp
+   0x0000555555554890 <+4>:	add    $0xffffffffffffff80,%rsp is it even possible to have this much space on stack
+
+   0x0000555555554894 <+8>:	mov    0x20171d(%rip),%rax        # 0x555555755fb8 -stdin to 3rd
+   0x000055555555489b <+15>:	mov    (%rax),%rax
+   0x000055555555489e <+18>:	mov    %rax,%rdx
+   0x00005555555548a1 <+21>:	lea    -0x80(%rbp),%rax - var at 128 input_80 to 1st
+   0x00005555555548a5 <+25>:	mov    $0x80,%esi - 128 to 2nd
+   0x00005555555548aa <+30>:	mov    %rax,%rdi
+   0x00005555555548ad <+33>:	callq  0x555555554770 <fgets@plt>
+
+   0x00005555555548b2 <+38>:	lea    -0x80(%rbp),%rax - input_80 to 1st
+   0x00005555555548b6 <+42>:	mov    %rax,%rdi
+   0x00005555555548b9 <+45>:	callq  0x555555554740 <system@plt>
+
+   0x00005555555548be <+50>:	leaveq
+   0x00005555555548bf <+51>:	retq
+
+	char	input_80[128];
+
+	fgets(input_80, 128, stdin);
+	system(input_80);
+
+	return;
+}
+
+void	set_msg(struct s_msg *msg_408)
+{
+   0x0000555555554932 <+0>:	push   %rbp
+   0x0000555555554933 <+1>:	mov    %rsp,%rbp
+   0x0000555555554936 <+4>:	sub    $0x410,%rsp
+   0x000055555555493d <+11>:	mov    %rdi,-0x408(%rbp) - funtion arg to msg_408 -1032
+   0x0000555555554944 <+18>:	lea    -0x400(%rbp),%rax - create char input_400 at 1024
+
+   0x000055555555494b <+25>:	mov    %rax,%rsi
+   0x000055555555494e <+28>:	mov    $0x0,%eax
+   0x0000555555554953 <+33>:	mov    $0x80,%edx - 128
+   0x0000555555554958 <+38>:	mov    %rsi,%rdi
+   0x000055555555495b <+41>:	mov    %rdx,%rcx
+   0x000055555555495e <+44>:	rep stos %rax,%es:(%rdi) - bzero it for 128
+
+   0x0000555555554961 <+47>:	lea    0x265(%rip),%rdi        # 0x555555554bcd - unix dude
+   0x0000555555554968 <+54>:	callq  0x555555554730 <puts@plt>
+
+   0x000055555555496d <+59>:	lea    0x26b(%rip),%rax        # 0x555555554bdf - >>:
+   0x0000555555554974 <+66>:	mov    %rax,%rdi
+   0x0000555555554977 <+69>:	mov    $0x0,%eax
+   0x000055555555497c <+74>:	callq  0x555555554750 <printf@plt>
+
+   0x0000555555554981 <+79>:	mov    0x201630(%rip),%rax        # 0x555555755fb8 - stdin to 3rd
+   0x0000555555554988 <+86>:	mov    (%rax),%rax
+   0x000055555555498b <+89>:	mov    %rax,%rdx
+   0x000055555555498e <+92>:	lea    -0x400(%rbp),%rax input_400 to 1st
+   0x0000555555554995 <+99>:	mov    $0x400,%esi - 1024 to 2nd
+   0x000055555555499a <+104>:	mov    %rax,%rdi
+   0x000055555555499d <+107>:	callq  0x555555554770 <fgets@plt>
+
+   0x00005555555549a2 <+112>:	mov    -0x408(%rbp),%rax - msg_408
+   0x00005555555549a9 <+119>:	mov    0xb4(%rax),%eax - msg + 180 is len msg_408->len to eax
+   0x00005555555549af <+125>:	movslq %eax,%rdx extend to rdx - 3rd arg
+   0x00005555555549b2 <+128>:	lea    -0x400(%rbp),%rcx - input_400 to 2nd
+   0x00005555555549b9 <+135>:	mov    -0x408(%rbp),%rax - msg_408 to 1st (it is msg_408->msg)
+   0x00005555555549c0 <+142>:	mov    %rcx,%rsi
+   0x00005555555549c3 <+145>:	mov    %rax,%rdi
+   0x00005555555549c6 <+148>:	callq  0x555555554720 <strncpy@plt>
+
+   0x00005555555549cb <+153>:	leaveq
+   0x00005555555549cc <+154>:	retq
+
+	char	input_400[1024];
+
+	bzero(input_400, 128);
+	puts("Message @Unix-Dude");
+	printf(">>: ");
+	fgets(input_400, 1024, stdin);
+	strncpy(msg_408->msg, input_400, msg_408->len);
+	return;
+}
+
+void	set_username(struct s_msg *msg_98)
+{
+   0x00005555555549cd <+0>:	push   %rbp
+   0x00005555555549ce <+1>:	mov    %rsp,%rbp
+   0x00005555555549d1 <+4>:	sub    $0xa0,%rsp
+   0x00005555555549d8 <+11>:	mov    %rdi,-0x98(%rbp) - funtion arg to var_98 msg_98 (152)
+
+   0x00005555555549df <+18>:	lea    -0x90(%rbp),%rax - buffer at 144 input_90jk
+   0x00005555555549e6 <+25>:	mov    %rax,%rsi
+   0x00005555555549e9 <+28>:	mov    $0x0,%eax
+   0x00005555555549ee <+33>:	mov    $0x10,%edx - 16
+   0x00005555555549f3 <+38>:	mov    %rsi,%rdi
+   0x00005555555549f6 <+41>:	mov    %rdx,%rcx
+   0x00005555555549f9 <+44>:	rep stos %rax,%es:(%rdi) - bzero it for 16
+
+   0x00005555555549fc <+47>:	lea    0x1e1(%rip),%rdi        # 0x555555554be4 - enter your name
+   0x0000555555554a03 <+54>:	callq  0x555555554730 <puts@plt>
+
+   0x0000555555554a08 <+59>:	lea    0x1d0(%rip),%rax        # 0x555555554bdf - >>:
+   0x0000555555554a0f <+66>:	mov    %rax,%rdi
+   0x0000555555554a12 <+69>:	mov    $0x0,%eax
+   0x0000555555554a17 <+74>:	callq  0x555555554750 <printf@plt>
+
+   0x0000555555554a1c <+79>:	mov    0x201595(%rip),%rax        # 0x555555755fb8 - stdin to 3rd
+   0x0000555555554a23 <+86>:	mov    (%rax),%rax
+   0x0000555555554a26 <+89>:	mov    %rax,%rdx
+   0x0000555555554a29 <+92>:	lea    -0x90(%rbp),%rax - input_90 to 1st
+   0x0000555555554a30 <+99>:	mov    $0x80,%esi - 128 to 2nd
+   0x0000555555554a35 <+104>:	mov    %rax,%rdi
+   0x0000555555554a38 <+107>:	callq  0x555555554770 <fgets@plt>
+
+	char	input_90[128];
+
+	bzero(input_90, 16);
+	puts(">: Enter your username");
+	printf( ">>: ");
+	fgets(input_90, 128, stdin);
+
+   0x0000555555554a3d <+112>:	movl   $0x0,-0x4(%rbp) - 0 to var at 4 (int i)
+   0x0000555555554a44 <+119>:	jmp    0x555555554a6a <set_username+157>
+   0x0000555555554a46 <+121>:	mov    -0x4(%rbp),%eax
+   0x0000555555554a49 <+124>:	cltq  - equal to cdqe extends long to quad - now int i is in rax
+   0x0000555555554a4b <+126>:	movzbl -0x90(%rbp,%rax,1),%ecx input[i] extended too end put to ecx
+   0x0000555555554a53 <+134>:	mov    -0x98(%rbp),%rdx - msg_98 at rdx
+   0x0000555555554a5a <+141>:	mov    -0x4(%rbp),%eax
+   0x0000555555554a5d <+144>:	cltq
+   0x0000555555554a5f <+146>:	mov    %cl,0x8c(%rdx,%rax,1) msg+140+i = msg->username[i] = input[i]
+   0x0000555555554a66 <+153>:	addl   $0x1,-0x4(%rbp) inc i
+   0x0000555555554a6a <+157>:	cmpl   $0x28,-0x4(%rbp) if 40>i
+   0x0000555555554a6e <+161>:	jg     0x555555554a81 <set_username+180> jump out so keep here till i <=40
+   0x0000555555554a70 <+163>:	mov    -0x4(%rbp),%eax
+   0x0000555555554a73 <+166>:	cltq
+   0x0000555555554a75 <+168>:	movzbl -0x90(%rbp,%rax,1),%eax input[i]
+   0x0000555555554a7d <+176>:	test   %al,%al compare to 0
+   0x0000555555554a7f <+178>:	jne    0x555555554a46 <set_username+121> it not  0 jump out
+
+   0x0000555555554a81 <+180>:	mov    -0x98(%rbp),%rax - msg_98 at rax
+   0x0000555555554a88 <+187>:	lea    0x8c(%rax),%rdx msg_98->username to second
+   0x0000555555554a8f <+194>:	lea    0x165(%rip),%rax        # 0x555555554bfb - welcome %s to 1st
+   0x0000555555554a96 <+201>:	mov    %rdx,%rsi
+   0x0000555555554a99 <+204>:	mov    %rax,%rdi
+   0x0000555555554a9c <+207>:	mov    $0x0,%eax
+   0x0000555555554aa1 <+212>:	callq  0x555555554750 <printf@plt>
+
+   0x0000555555554aa6 <+217>:	leaveq
+   0x0000555555554aa7 <+218>:	retq
+
+	for (int i = 0; i <= 40 && input_90[i]; i++)
+		msg_98->username[i] = input_90[i];
+	printf(">: Welcome, %s", msg_98->username);
+	return;
+}
+
+void	handle_msg(void)
+{
+   0x00005555555548c0 <+0>:	push   %rbp
+   0x00005555555548c1 <+1>:	mov    %rsp,%rbp
+   0x00005555555548c4 <+4>:	sub    $0xc0,%rsp - 192 stack
+
+   0x00005555555548cb <+11>:	lea    -0xc0(%rbp),%rax - var at c0 out msg struct at 192 - first 140 is msg, then 40 name end then int len
+   0x00005555555548d2 <+18>:	add    $0x8c,%rax at var+140 is equal to msg->username
+   0x00005555555548d8 <+24>:	movq   $0x0,(%rax)
+   0x00005555555548df <+31>:	movq   $0x0,0x8(%rax)
+   0x00005555555548e7 <+39>:	movq   $0x0,0x10(%rax)
+   0x00005555555548ef <+47>:	movq   $0x0,0x18(%rax)
+   0x00005555555548f7 <+55>:	movq   $0x0,0x20(%rax) - bzero it with quadwords for 40
+
+   0x00005555555548ff <+63>:	movl   $0x8c,-0xc(%rbp) 140 to msg->len
+
+   0x0000555555554906 <+70>:	lea    -0xc0(%rbp),%rax - &msg to first arg
+   0x000055555555490d <+77>:	mov    %rax,%rdi
+   0x0000555555554910 <+80>:	callq  0x5555555549cd <set_username>
+
+   0x0000555555554915 <+85>:	lea    -0xc0(%rbp),%rax - &msg to first arg
+   0x000055555555491c <+92>:	mov    %rax,%rdi
+   0x000055555555491f <+95>:	callq  0x555555554932 <set_msg>
+
+   0x0000555555554924 <+100>:	lea    0x295(%rip),%rdi        # 0x555555554bc0 -msg sent!
+   0x000055555555492b <+107>:	callq  0x555555554730 <puts@plt>
+   0x0000555555554930 <+112>:	leaveq
+   0x0000555555554931 <+113>:	retq
+
+	struct s_msg msg_c0;
+
+	bzero(msg_c0.username, 40);
+	msg_c0.len = 140;
+
+	set_username(&msg_c0);
+	set_msg(&msg_c0);
+	puts(">: Msg sent!");
+
+	return;
+}
+
+int	main(void)
+{
+   0x0000555555554aa8 <+0>:	push   %rbp
+   0x0000555555554aa9 <+1>:	mov    %rsp,%rbp
+=> 0x0000555555554aac <+4>:	lea    0x15d(%rip),%rdi        # 0x555555554c10 - welcome...
+   0x0000555555554ab3 <+11>:	callq  0x555555554730 <puts@plt>
+
+   0x0000555555554ab8 <+16>:	callq  0x5555555548c0 <handle_msg>
+
+   0x0000555555554abd <+21>:	mov    $0x0,%eax - return 0
+   0x0000555555554ac2 <+26>:	pop    %rbp
+   0x0000555555554ac3 <+27>:	retq
+
+	puts("--------------------------------------------\n|   ~Welcome to l33t-m$n ~    v1337        |\n--------------------------------------------");
+	handle_msg();
+
+	return 0;
+}
+
+    */
