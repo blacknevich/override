@@ -4,34 +4,33 @@
 #include <time.h>
 
 
-	/*
 void decrypt(int input_string) {
 
-int tmp[5] = {0x757c7d51, 0x67667360, 0x7b66737e, 0x33617c7d, 0};
+	int tmp[5] = {0x757c7d51, 0x67667360, 0x7b66737e, 0x33617c7d, 0};
 
-size_t len = strlen((char *)&tmp[i]);
-int i = 0;
+	size_t len = strlen((char *)&tmp[i]);
+	int i = 0;
 
-while(i < len) {
-*(char *)&tmp[i] = 0xff & (*(char *)&tmp[i] ^ input_string);
-i++;
-}
+	while(i < len) {
+		*(char *)&tmp[i] = 0xff & (*(char *)&tmp[i] ^ input_string);
+		i++;
+	}
 
-if (strncmp((char *)(&tmp[0]), "Congratulations!", 17) == 0)
-    while (i < len) {
-        buf[i] = buf[i] ^ input;
-        i++;
-    }
-    if (strncmp(buf, "Congratulations!", 17) == 0) {
-        system("/bin/sh");
-    } else {
-        puts("\nInvalid Password");
-    }
-    return;
+	if (strncmp((char *)(&tmp[0]), "Congratulations!", 17) == 0)
+		while (i < len) {
+			buf[i] = buf[i] ^ input;
+			i++;
+		}
+	if (strncmp(buf, "Congratulations!", 17) == 0) {
+		system("/bin/sh");
+	} else {
+		puts("\nInvalid Password");
+	}
+	return;
 }
 
 void test(int input_string, int constant) {
-	
+
 
 	int tmp = constant - input_string;;
 
@@ -77,18 +76,21 @@ end:
 int main(void) {
 
 
-    srand(time(0));
-    puts("***********************************");
-    puts("*\t\tlevel03\t\t**");
-    puts("***********************************");
-    printf("Password:");
+	srand(time(0));
+	puts("***********************************");
+	puts("*\t\tlevel03\t\t**");
+	puts("***********************************");
+	printf("Password:");
 
-    int input_string;
+	int input_string;
 
-    scanf("%d", &input_string);
-    test(input_string, 0x1337d00d);
-    return 0;
+	scanf("%d", &input_string);
+	test(input_string, 0x1337d00d);
+	return 0;
 }
+
+
+	/*
 	  and now the fool version!*/
 
 void decrypt(int input_string) {
@@ -98,9 +100,11 @@ void decrypt(int input_string) {
    0x08048663 <+3>:	push   %edi
    0x08048664 <+4>:	push   %esi
    0x08048665 <+5>:	sub    $0x40,%esp = 64 stack
+
    0x08048668 <+8>:	mov    %gs:0x14,%eax - canary operation
    0x0804866e <+14>:	mov    %eax,-0xc(%ebp) - canary operation - var at 12
    0x08048671 <+17>:	xor    %eax,%eax - canary operation
+
    0x08048673 <+19>:	movl   $0x757c7d51,-0x1d(%ebp) - 29
    0x0804867a <+26>:	movl   $0x67667360,-0x19(%ebp) - 25
    0x08048681 <+33>:	movl   $0x7b66737e,-0x15(%ebp) - 21

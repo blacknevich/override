@@ -14,7 +14,7 @@ start <<<$(python -c 'print "U"*40+"\xff"+"\n"+"A"*255')
 
 the problem is that this time segfault doesn't give us any information but we have a very convenient msg_handle function
 it's stack consists only from structure we are currently overflowing (although formally we are in set_msg, it works with a pointer from handle_msg)
-struct size is 184 and we should add 16 bytes to fill RBP on our way to return pointer - 200
+with info frame, x/200x $rsp and a trial input we can analyse the offset - 200
 
 the programm has (info funtions) 1 hidden function secret_backdoor that leads to system(input from fgets) form which is our aim
 it's address is 0x000055555555488c (info functions secret_backdoor) - it is enough to fill the return pointer with this address
